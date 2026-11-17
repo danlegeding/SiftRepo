@@ -21,7 +21,6 @@ if not DB_URL:
         "未设置 DB_URL，使用默认库 %s（要换库：设 DB_URL 环境变量或写进 .env）",
         DEFAULT_DB_URL,
     )
-# endregion
 
 TORTOISE_ORM: Dict = {
     "connections": {

@@ -12,17 +12,6 @@ from app.model.analysis import AnalysisResult
 
 load_dotenv()
 
-# region 改动 2026-11-17：模型客户端改为懒加载 + 模型名走环境变量（原来 import 期构造）
-# [原代码] 改动前是模块级构造，且模型名写死（没 key 时整个应用起不来）：
-#     load_dotenv(override=True)
-#     gdp_model = init_chat_model(
-#         model="gpt-5.4-mini",
-#         model_provider="openai",
-#         api_key=os.getenv("CLOSEAI_API_KEY"),
-#         base_url=os.getenv("CLOSEAI_BASE_URL"),
-#     )
-#     structured_llm = gdp_model.with_structured_output(AnalysisResult)
-#     下面函数里直接用 structured_llm.ainvoke(...)
 # 单块分析用的模型（走 OpenAI 兼容代理）；可用 ANALYSIS_MODEL 覆盖
 DEFAULT_ANALYSIS_MODEL = "gpt-5.4-mini"
 
@@ -53,7 +42,6 @@ def get_structured_llm():
     )
     _structured_llm = base_llm.with_structured_output(AnalysisResult)
     return _structured_llm
-# endregion
 
 
 def split_code_for_analyses(content: str) -> list[str]:
@@ -74,11 +62,6 @@ def split_code_for_analyses(content: str) -> list[str]:
     return splitter.split_text(content)
 
 
-# region 改动 2026-11-17：None 兜底（模型偶尔返回 None，原来会让上层 model_dump_json 崩）
-# [原代码] 改动前两个函数都是直接 return，没有 None 检查：
-#     async def analyses_code_chunk(content): ... return await structured_llm.ainvoke(prompt)
-#     async def summarize_analyses(analyses, file_path):
-#         analyses_text = "\n\n".join(item.model_dump_json() for item in analyses)   # None 会 AttributeError
 def _failed_result(reason: str) -> AnalysisResult:
     """模型没返回结构化结果时的占位，保证汇总环节不会因为 None 崩掉。"""
     return AnalysisResult(
@@ -146,4 +129,3 @@ async def summarize_analyses(
     if result is None:
         return _failed_result("汇总时模型没有返回结构化结果")
     return result
-# endregion

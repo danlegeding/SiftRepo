@@ -107,4 +107,3 @@ async def list_project_files(project_id: int) -> dict:
         "chunks_total": chunk_total,
         "chunks_truncated": chunk_total > len(chunk_rows),
     }
-# endregion

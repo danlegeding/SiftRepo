@@ -31,4 +31,3 @@ async def ensure_pgvector_schema(dim: int = DEFAULT_EMBEDDING_DIM) -> None:
     )
     _ready_dims.add(dim)
     logger.info("pgvector 就绪：codechunk.embedding vector({})", dim)
-# endregion

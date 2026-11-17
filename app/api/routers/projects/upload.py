@@ -41,7 +41,6 @@ async def upload_project(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=400, detail="上传的文件不是有效的 ZIP 压缩包"
         ) from exc
-    # endregion
 
     project = await Project.create(name=file.filename)
     all_codechunks: list[CodeChunk] = []
@@ -57,9 +56,6 @@ async def upload_project(file: UploadFile = File(...)):
                 if any(part in EXCLUDED_DIRS for part in path.parts):
                     continue
                 # 后缀比较大写不敏感（.PY / .Py 也算）
-                # region 改动 2026-11-17：文件数上限 + 后缀大小写不敏感
-                # [原代码] 改动前：`if path.suffix not in SUPPORTED_EXTENTION: continue`（.PY 会被跳过），
-                #          且没有 MAX_FILES 检查。
                 if path.suffix.lower() not in SUPPORTED_EXTENTION:
                     continue
 
@@ -80,7 +76,6 @@ async def upload_project(file: UploadFile = File(...)):
                     language=path.suffix.lower(),
                     content=content,
                 )
-                # endregion
 
                 chunks = chunk_code(content, chunk_size=500, overlap=50)
                 if len(all_codechunks) + len(chunks) > MAX_CHUNKS:
@@ -89,17 +84,6 @@ async def upload_project(file: UploadFile = File(...)):
                         detail=f"代码块数超过上限（{MAX_CHUNKS}），请缩小上传范围",
                     )
 
-                # region 改动 2026-11-17：逐条 INSERT 改成 bulk_create（1000 块从 1000 次往返降到 1 次）
-                # [原代码] 改动前是循环单条插入：
-                #     for chunk in chunks:
-                #         await CodeChunk.create(
-                #             file=code_file,
-                #             content=chunk["content"],
-                #             start_line=chunk["start_line"],
-                #             end_line=chunk["end_line"],
-                #             chunk_index=chunk["chunk_index"],
-                #         )
-                #         all_codechunks.append(new_chunk)
                 await CodeChunk.bulk_create(
                     [
                         CodeChunk(
@@ -116,7 +100,6 @@ async def upload_project(file: UploadFile = File(...)):
                 all_codechunks.extend(
                     await CodeChunk.filter(file=code_file).order_by("chunk_index")
                 )
-                # endregion
 
                 files.append({"path": name, "chunks_count": len(chunks)})
 

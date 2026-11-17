@@ -5,8 +5,6 @@
 
 import re
 
-# region 改动 2026-11-17（多轮）：请求可带历史，检索前先做「指代补全」，生成时把历史作为对话上下文
-# [原代码] 改动前：检索永远只用当前这一句（问「那它的超时呢」会因为“它”检索不到任何东西）
 HISTORY_TURNS_FOR_PROMPT = 3      # 拼进 prompt 的历史最多几轮
 HISTORY_ANSWER_MAX_CHARS = 200    # 每条历史答案截断长度，防止 prompt 失控
 DEICTIC_PATTERN = re.compile(
@@ -17,7 +15,6 @@ SELF_CONTAINED_PATTERN = re.compile(
     r"(这个项目|该项目|本项目|这个仓库|这个代码库|这个代码仓库|整个项目)"
 )
 SHORT_QUESTION_CHARS = 8          # 太短的问题（如「为什么？」）也带上上一轮
-# endregion
 
 
 def _last_question(history: list[dict]) -> str:

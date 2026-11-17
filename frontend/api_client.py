@@ -123,7 +123,6 @@ def fetch_project_files(project_id):
         )
 
     return files, chunk_rows
-# endregion
 
 
 def extract_project_info(data, fallback_name):

@@ -449,7 +449,6 @@ from api_client import (  # noqa: E402
     fetch_projects,
     upload_project,
 )
-# endregion
 
 
 

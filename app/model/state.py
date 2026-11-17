@@ -15,12 +15,8 @@ class OverAllState(BaseModel):
     mid_context: str = ""
     answer: str = ""
     project_id: int
-    # region 改动 2026-11-17（多轮）：请求可带历史，检索前先做「指代补全」，生成时把历史作为对话上下文
-    # [原代码] 改动前：state 只有 question / mid_context / answer / project_id，
-    #           检索永远只用当前这一句（问「那它的超时呢」会因为“它”检索不到任何东西）
     history: list[dict] = []
     retrieval_query: str = ""
-    # endregion
 
 
 class AnalysesState(BaseModel):

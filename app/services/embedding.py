@@ -12,15 +12,6 @@ import os
 # 不做 override：外部（容器 / CI / 命令行）注入的环境变量优先于文件
 load_dotenv()
 
-# region 改动 2026-11-17：embedding 客户端改为「懒加载」+ 模型名/维度走环境变量
-# [原代码] 改动前是模块级直接构造（import 阶段就要 API Key，没 key 连模块都导不进来）：
-#     load_dotenv(override=True)
-#     embedding_model = init_embeddings(
-#         model="openai:text-embedding-3-small",
-#         api_key=os.getenv("CLOSEAI_API_KEY"),
-#         base_url=os.getenv("CLOSEAI_BASE_URL"),
-#     )
-#     然后 embed_texts / retrieve 里直接用 embedding_model.xxx()
 # 换 embedding 模型时，维度必须同步改（列定义与写入都会用它）
 EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "1536"))
 DEFAULT_EMBEDDING_MODEL = "openai:text-embedding-3-small"
@@ -52,13 +43,8 @@ def get_embedding_model():
         base_url=os.getenv("CLOSEAI_BASE_URL"),
     )
     return _model
-# endregion
 
 
-# region 改动 2026-11-17：空列表保护 + 改走懒加载的客户端
-# [原代码] 改动前：
-#     async def embed_texts(texts):
-#         return await asyncio.to_thread(embedding_model.embed_documents, texts)
 async def embed_texts(texts: list[str]) -> list[list[float]]:
     """在线程中批量生成文本向量，避免阻塞 FastAPI 事件循环。"""
     if not texts:
@@ -68,4 +54,3 @@ async def embed_texts(texts: list[str]) -> list[list[float]]:
         get_embedding_model().embed_documents,
         texts,
     )
-# endregion

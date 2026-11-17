@@ -35,6 +35,5 @@ def get_llm_model() -> ChatDeepSeek:
         base_url=base_url,
         extra_body=extra_body,
     )
-    # endregion
     logger.info("大模型客户端就绪：model={} base_url={}", model_name, base_url)
     return _model

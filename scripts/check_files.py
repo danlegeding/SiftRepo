@@ -2,9 +2,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-# region 改动 2026-11-17（整理）：文件从 app/ 挪到 scripts/，跑脚本时要先把项目根加进 sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-# endregion
 
 from tortoise import Tortoise
 from app.core.models import CodeFile

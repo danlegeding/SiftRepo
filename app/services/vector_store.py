@@ -65,7 +65,6 @@ async def retrieve(query: str, project_id: int, limit: int = 5) -> str:
         """,
         [project_id, str(query_vector), limit],
     )
-    # endregion
     retrieval_elapsed_ms = (time.perf_counter() - retrieval_start) * 1000
 
     logger.info(

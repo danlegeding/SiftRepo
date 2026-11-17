@@ -9,9 +9,6 @@ from app.model.api import ChatRequest
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
-# region 改动 2026-11-17（整理）：请求体模型搬到 app/model/api.py（接口契约与路由分开）
-# [原代码] 改动前：ChatRequest / HistoryTurn / ChatRequestWithHistory 三个类直接写在本文件里。
-# 对应的行为改动（问题长度校验、项目不存在 404、支持多轮 history）见 app/model/api.py 与下方端点。
 @router.post("/")
 async def chat(request: ChatRequest):
     """针对某个项目提问：先校验项目存在，再走「检索 → 生成」图。"""
@@ -37,4 +34,3 @@ async def chat(request: ChatRequest):
         "answer": response["answer"],
         "retrieval_query": response.get("retrieval_query", ""),   # 回显检索用的查询（便于排查）
     }
-# endregion
