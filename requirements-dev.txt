@@ -1,0 +1,5 @@
+# 开发/测试依赖（CI 里会额外装这份）
+# 运行/部署只需要 requirements.txt
+pytest==9.0.3
+pytest-asyncio==1.4.0
+httpx==0.28.1

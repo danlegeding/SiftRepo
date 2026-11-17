@@ -1,0 +1,136 @@
+# 检索评测集：每题人工标注「正确答案应该在哪几个文件里」
+#
+# 用法：
+#   python scripts/run_retrieval_eval.py            # 全量（含多轮对照）
+#   python scripts/run_retrieval_eval.py --limit 5  # 只看前 5 条
+#
+# 判命中规则：检索 top-k 的 file_path 里出现 expected_files 中任意一个（子串匹配）即算命中。
+# 标注原则：只标「真正回答了这个问题」的文件，不要标一堆同类文件（否则指标虚高）。
+#
+# project 字段写项目名前缀（脚本会按 LIKE 去 project 表里找 id）。
+
+cases:
+  - id: R01
+    project: mock-interview
+    question: 面试流程里各个节点是怎么连起来的？条件边在哪个文件定义？
+    expected_files:
+      - src/graph/build.py
+
+  - id: R02
+    project: mock-interview
+    question: 决定下一个问题该问什么时，有哪些写死的兜底规则（轮数上限、覆盖守卫）？
+    expected_files:
+      - src/graph/nodes/decide_next.py
+
+  - id: R03
+    project: mock-interview
+    question: 评分时要求模型给出候选人原话引用，这个引用是怎么被代码复核的？
+    expected_files:
+      - src/graph/checks.py
+
+  - id: R04
+    project: mock-interview
+    question: 每一轮问答是怎么追加到图的状态里的？断线之后靠什么继续？
+    expected_files:
+      - src/api/graph_io.py
+
+  - id: R05
+    project: mock-interview
+    question: 最终面试报告是怎么生成、每个字段怎么拼、又存进哪张表？
+    expected_files:
+      - src/graph/nodes/generate_report.py
+
+  - id: R06
+    project: mock-interview
+    question: gold 集的 yaml 文件包含哪些字段？加载时做了哪些校验？
+    expected_files:
+      - src/model/gold.py
+
+  - id: R07
+    project: mock-interview
+    question: 评测脚本里的 Spearman 等级相关系数是怎么算的？
+    expected_files:
+      - scripts/run_eval.py
+
+  - id: R08
+    project: mock-interview
+    question: 「追问必须带 anchor_quote」这条约束写在哪个数据模型里？
+    expected_files:
+      - src/model/question.py
+
+  - id: R09
+    project: mock-interview
+    question: 接口层的统一异常处理和 request_id 中间件在哪里实现？
+    expected_files:
+      - src/api/errors.py
+      - src/app.py
+
+  - id: R10
+    project: mock-interview
+    question: 上传的 PDF 是怎么抽成文本、去掉页眉页脚再转成 markdown 的？
+    expected_files:
+      - src/pdf2md.py
+
+  - id: R11
+    project: mock-interview
+    question: 一场面试最多问几轮、某个维度跳几次算放弃，这些常量定义在哪？
+    expected_files:
+      - src/graph/policy.py
+
+  - id: R12
+    project: mock-interview
+    question: 五个评分维度各自的 1 分、3 分、5 分行为描述在哪定义？
+    expected_files:
+      - src/graph/rubrics.py
+
+  - id: R13
+    project: CodeInsight 2.0
+    question: 代码文件是按多少字符切块、块之间重叠多少？
+    expected_files:
+      - app/services/chunker.py
+
+  - id: R14
+    project: CodeInsight 2.0
+    question: 向数据库写入向量、以及按向量距离检索，用的 SQL 写在哪个文件？
+    expected_files:
+      - app/services/embedding.py
+
+  - id: R15
+    project: CodeInsight 2.0
+    question: 代码质量分析时，多个代码块是怎么并发分发出去分析的？
+    expected_files:
+      - app/graph/analysis_graph.py
+
+# 多轮对照：同一句追问，直接检索 vs 先拼上一轮问题再检索（这就是 build_retrieval_query 的作用）
+# 用来量化「指代补全」到底有没有用。
+followups:
+  - id: F01
+    project: mock-interview
+    previous_question: 评分时要求模型给出候选人原话引用，这个引用是怎么被代码复核的？
+    followup_question: 那它如果编造了会怎样处理？
+    expected_files:
+      - src/graph/checks.py
+      - src/graph/nodes/evaluate_answer.py
+
+  - id: F02
+    project: mock-interview
+    previous_question: 一场面试最多问几轮、某个维度跳几次算放弃，这些常量定义在哪？
+    followup_question: 那它轮数到顶但还有维度没问过怎么办？
+    expected_files:
+      - src/graph/nodes/decide_next.py
+
+  - id: F03
+    project: mock-interview
+    previous_question: 最终面试报告是怎么生成的？
+    followup_question: 那它的 strengths 为什么必须引用原话？
+    expected_files:
+      - src/model/report.py
+      - src/graph/nodes/generate_report.py
+
+  - id: F04
+    project: mock-interview
+    previous_question: 每轮问答是怎么追加到图的状态里的？
+    followup_question: 那它的返回值在断线续跑时会重放吗？
+    expected_files:
+      - src/graph/nodes/ask.py
+      - src/api/graph_io.py
