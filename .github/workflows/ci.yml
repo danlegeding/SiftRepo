@@ -57,4 +57,4 @@ jobs:
         run: python -m compileall -q app frontend tests scripts
 
       - name: 单元测试 + 接口契约测试
-        run: pytest -q
+        run: python -m pytest -q
