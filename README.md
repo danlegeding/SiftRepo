@@ -11,7 +11,7 @@ SiftRepo 是一个基于大语言模型（LLM）与检索增强生成（RAG）�
 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.13-blue?logo=python" alt="Python">
+  <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python" alt="Python">
   <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/LangChain-RAG-1C3C3C" alt="LangChain">
   <img src="https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?logo=postgresql" alt="PostgreSQL">
