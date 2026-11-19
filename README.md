@@ -307,22 +307,22 @@ POST /chat/
 
 🧪 测试与评测
 
-**自动化测试（30 个用例，CI 全绿）**
+**自动化测试（34 个用例，CI 全绿）**
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-pytest -q          # 30 passed
+python -m pytest -q          # 34 passed
 ```
 
 | 测试文件 | 用例数 | 覆盖内容 |
 |---|---|---|
-| `tests/test_chunker.py` | 4 | 代码切分块大小、重叠、起始行号 |
+| `tests/test_chunker.py` | 5 | 代码切分块大小、重叠、起始行号 |
 | `tests/test_file_filter.py` | 3 | 后缀白名单与目录过滤 |
-| `tests/test_models.py` | 5 | ORM 字段契约、`embedding` 列由 SQL 补 |
+| `tests/test_models.py` | 8 | ORM 字段契约、`embedding` 列由 SQL 补、请求体非法输入必须被拒（空问题 / 超长 / 缺 `project_id` / 历史超 6 轮） |
 | `tests/test_retrieval_query.py` | 8 | 多轮指代补全、历史截断 |
 | `tests/test_api_contract.py` | 10 | openapi 路径集合、参数校验（422）、404、stub 检索+LLM 的问答链路 |
 
-CI 见 `.github/workflows/ci.yml`：GitHub Actions + `pgvector/pgvector:pg16` service 容器，跑 `compileall` + `pytest`；LLM 与 embedding 在测试里全部 stub，不消耗额度。
+CI 见 `.github/workflows/ci.yml`：GitHub Actions + `pgvector/pgvector:pg16` service 容器，跑 `compileall` + `python -m pytest`；LLM 与 embedding 在测试里全部 stub，不消耗额度。本地等价命令见 [`docs/COMMANDS.md`](docs/COMMANDS.md)。
 
 **效果评测（`scripts/`，需要真实模型，不在 CI 里跑）**
 
@@ -357,7 +357,7 @@ PostgreSQL 可以统一存储项目、文件和代码块等结构化数据，pgv
 
 🗺️ 后续计划
 
-- [x] 增加自动化测试，覆盖上传、切分、检索和问答流程（30 个用例 + CI）。
+- [x] 增加自动化测试，覆盖上传、切分、检索、问答与请求体校验（34 个用例 + CI）。
 - [x] 优化检索结果的相关性，并评估不同检索策略的效果（hit@5 = 0.73，见上文评测表）。
 - [ ] 处理「中文问题更容易命中中文文档」：给代码文件加权或加重（R03/R04/R15 三个未命中都属于这类）。
 - [ ] 把 prompt 里的引用要求改成「必须写完整相对路径」，把严格口径的引用真实性从 0.42 提上去。

@@ -1,4 +1,33 @@
+import pytest
+from pydantic import ValidationError
+
 from app.core.models import CodeChunk, CodeFile, Project
+from app.model.api import ChatRequest, HistoryTurn
+
+
+def test_chat_request_rejects_empty_question():
+    """空问题要在进接口之前就被挡掉，而不是让模型去猜「用户是不是手滑了」。"""
+    with pytest.raises(ValidationError, match="question"):
+        ChatRequest(question="", project_id=3)
+
+
+def test_chat_request_rejects_too_long_question():
+    with pytest.raises(ValidationError, match="question"):
+        ChatRequest(question="x" * 2001, project_id=3)
+
+
+def test_chat_request_requires_project_id():
+    """project_id 没有默认值：漏传必须报错，否则会拿 None 去查库、变成 500。"""
+    with pytest.raises(ValidationError, match="project_id"):
+        ChatRequest(question="这个项目的入口在哪")
+
+
+def test_chat_request_rejects_too_many_history_turns():
+    """history 最多 6 轮（和 prompt 里取最近 3 轮不是一回事，这里限制的是请求体大小）。"""
+    turns = [HistoryTurn(question=f"问题{i}") for i in range(7)]
+    with pytest.raises(ValidationError, match="history"):
+        ChatRequest(question="那它的超时呢", project_id=3, history=turns)
+
 
 
 def test_project_model_fields():
